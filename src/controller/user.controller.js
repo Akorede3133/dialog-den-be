@@ -49,3 +49,17 @@ export const login = async (req, res, next) => {
     next(error);
   }
 }
+
+export const currentUser = async (req, res, next) => {
+  try {
+    const { userId } = req;
+    const user = await User.findByPk(userId);
+    if (!user) {
+      handleError('No user found', 404);
+    }
+    const { id, username, email } = user;
+    res.status(200).send({ id, username, email});
+  } catch (error) {
+    next(error)
+  }
+}

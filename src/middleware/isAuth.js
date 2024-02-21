@@ -1,9 +1,9 @@
 import jwt from 'jsonwebtoken';
-import { handleError } from '../utils/error';
+import { handleError } from '../utils/error.js';
 
 export const isAuth = (req, res, next) => {
   try {
-    const { auth_token } = res.cookies;
+    const { auth_token } = req.cookies;
     if (!auth_token) {
       handleError('No token found', 401);
     }
