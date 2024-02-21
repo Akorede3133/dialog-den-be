@@ -14,7 +14,8 @@ app.use('/api/v1', authRoute);
 
 app.use((error, req, res, next) => {
   const { message, statusCode} = error;
-  res.status(statusCode | 500).send(message)
+  console.log(statusCode);
+  res.status(statusCode || 500).send({ message })
 })
 
 sequelize.sync({ alter: true })
