@@ -44,7 +44,7 @@ export const login = async (req, res, next) => {
       secure: process.env.NODE_ENV === 'production',
       maxAge: 86400000
     });
-    res.status(201).send({ message: 'LoggedIn sucessfully!', user});
+    res.status(200).send({ message: 'LoggedIn sucessfully!', user});
   } catch (error) {
     next(error);
   }
