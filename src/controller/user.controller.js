@@ -1,7 +1,9 @@
+import { Op } from "sequelize";
 import User from "../models/user.model.js"
 import { handleError } from "../utils/error.js";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import categorizeUsers from "../utils/categorizeUsers.js";
 
 export const register = async (req, res, next) => {
   try {
@@ -59,6 +61,24 @@ export const currentUser = async (req, res, next) => {
     }
     const { id, username, email } = user;
     res.status(200).send({ id, username, email});
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const getUsers = async (req, res, next) => {
+  try {
+    const { userId } = req;
+    const users = await User.findAll({
+      where: {
+        id: {
+          [Op.not]: userId
+        }
+      }
+    });
+    const categorizedUsers = categorizeUsers(users)
+    console.log(categorizedUsers);
+    res.status(200).send(categorizedUsers);
   } catch (error) {
     next(error)
   }
