@@ -77,7 +77,6 @@ export const getUsers = async (req, res, next) => {
       }
     });
     const categorizedUsers = categorizeUsers(users)
-    console.log(categorizedUsers);
     res.status(200).send(categorizedUsers);
   } catch (error) {
     next(error)
