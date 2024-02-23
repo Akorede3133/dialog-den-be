@@ -2,10 +2,12 @@ import express from 'express';
 import cors from 'cors';
 import { config } from 'dotenv';
 import sequelize from './configs/database.js';
-import authRoute from './routes/user.route.js';
 import cookieParser from 'cookie-parser';
 import User from './models/user.model.js';
 import Message from './models/message.model.js';
+import authRoutes from './routes/user.route.js';
+import messageRoutes from './routes/message.route.js';
+
 config()
 
 const app = express();
@@ -17,7 +19,9 @@ app.use(cors({
 app.use(express.json())
 app.use(cookieParser());
 
-app.use('/api/v1', authRoute);
+app.use('/api/v1', authRoutes);
+app.use('/api/v1', messageRoutes);
+
 
 app.use((error, req, res, next) => {
   const { message, statusCode} = error;
