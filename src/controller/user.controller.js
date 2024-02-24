@@ -4,6 +4,7 @@ import { handleError } from "../utils/error.js";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import categorizeUsers from "../utils/categorizeUsers.js";
+import Message from "../models/message.model.js";
 
 export const register = async (req, res, next) => {
   try {
@@ -78,6 +79,95 @@ export const getUsers = async (req, res, next) => {
     });
     const categorizedUsers = categorizeUsers(users)
     res.status(200).send(categorizedUsers);
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const recentChats = async (req, res, next) => {
+  try {
+    const user = await User.findByPk(req.userId, {
+      include: [
+        {
+          model: Message, 
+          as: 'sentMessages',
+          include: [
+            {
+              model: User,
+              as: 'receiver'
+            },
+            {
+              model: User,
+              as: 'sender'
+            }
+          ],
+          order: ['createdAt', 'DESC']
+        },
+        {
+          model: Message, 
+          as: 'receivedMessages',
+          include: [
+            {
+              model: User,
+              as: 'receiver'
+            },
+            {
+              model: User,
+              as: 'sender'
+            }
+          ],
+          order: ['createdAt', 'DESC']
+        }
+      ],
+    })
+
+    const messages = [...user.sentMessages, ...user.receivedMessages]
+
+    messages.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+    const chats = new Map();
+    messages.map((message) => {
+      const isSender = message.senderId === req.userId;
+
+      const {
+        id,
+        content,
+        type,
+        createdAt,
+        updatedAt,
+        senderId,
+        receiverId,
+      } = message.dataValues
+      const calcId = isSender ? receiverId : senderId;
+      const sender = message.dataValues.sender.dataValues;
+      const receiver = message.dataValues.receiver.dataValues;
+
+      let chat = {
+        messageId :id,
+        content,
+        type,
+        createdAt,
+        updatedAt,
+        senderId,
+        receiverId
+      }
+
+      if (isSender) {
+        chat = {
+          ...chat,
+          ...receiver
+        }
+      } else {
+        chat = {
+          ...chat,
+          ...sender
+        }
+      }
+      if (!chats.get(calcId)) {
+        chats.set(calcId, chat)
+      }
+    })
+    res.status(200).send(Array.from(chats.values()));
   } catch (error) {
     next(error)
   }

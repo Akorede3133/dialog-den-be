@@ -28,10 +28,14 @@ app.use((error, req, res, next) => {
   res.status(statusCode || 500).send({ message })
 })
 
-User.hasMany(Message, { as: 'sender', foreignKey: 'senderId' })
-Message.belongsTo(User, { foreignKey: 'senderId' })
-User.hasMany(Message, { as: 'receiver', foreignKey: 'receiverId' });
-Message.belongsTo(User, { foreignKey: 'receiverId' });
+
+User.hasMany(Message, { foreignKey: 'senderId', as: 'sentMessages' });
+Message.belongsTo(User, { foreignKey: 'senderId', as: 'sender' });
+
+User.hasMany(Message, { foreignKey: 'receiverId', as: 'receivedMessages' });
+Message.belongsTo(User, { foreignKey: 'receiverId', as: 'receiver' });
+
+
 
 sequelize.sync({ alter: true })
   .then(() => {
