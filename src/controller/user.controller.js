@@ -139,8 +139,10 @@ export const recentChats = async (req, res, next) => {
         receiverId,
       } = message.dataValues
       const calcId = isSender ? receiverId : senderId;
-      const sender = message.dataValues.sender.dataValues;
-      const receiver = message.dataValues.receiver.dataValues;
+      const {id: msgSenderId, username: senderUsername, email: senderEmail} = message.dataValues.sender.dataValues ;
+      const sender = { msgSenderId, senderUsername, senderEmail };
+      const {id: msgReceiverId, username: receiverUsername, email: receiverEmail} = message.dataValues.receiver.dataValues ;
+      const receiver = { msgReceiverId, receiverUsername, receiverEmail }
 
       let chat = {
         messageId :id,
@@ -151,6 +153,7 @@ export const recentChats = async (req, res, next) => {
         senderId,
         receiverId
       }
+
 
       if (isSender) {
         chat = {
