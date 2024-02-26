@@ -7,8 +7,16 @@ cloudinary.config({
 })
 
 const handleUpload = async (file) => {
-  const res = await cloudinary.uploader.upload(file, {
-    resource_type: 'auto'
-  });
-  return res;
+  try {
+    const res = await cloudinary.uploader.upload(file, {
+      resource_type: 'auto'
+    });
+    return res;
+    
+  } catch (error) {
+    throw new Error(error.message)
+    
+  }
+
 }
+export default handleUpload;
