@@ -1,5 +1,6 @@
 import { Op } from "sequelize";
 import Message from "../models/message.model.js"
+import uploadImage from "../utils/cloudinary.js";
 
 export const sendMessage = async (req, res, next) => {
   try {
@@ -28,3 +29,17 @@ export const getMessages = async (req, res, next) => {
     next(error)
   }
 };
+
+export const sendImage = async (req, res, next) => {
+  try {
+    const { receiverId } = req.params;
+    const b64 = Buffer.from(req.file.buffer).toString('base64');
+    const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+    const cldRes = await uploadImage(dataURI);
+    const { secure_url } = cldRes;
+    const message = await Message.create({ content: secure_url, type: 'image', senderId: req.userId, receiverId })
+    res.status(201).send(message);
+  } catch (error) {
+    next(error)
+  }
+}

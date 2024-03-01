@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import { config } from 'dotenv';
+// import { config } from 'dotenv';
+import 'dotenv/config';
 import sequelize from './configs/database.js';
 import cookieParser from 'cookie-parser';
 import User from './models/user.model.js';
@@ -8,7 +9,7 @@ import Message from './models/message.model.js';
 import authRoutes from './routes/user.route.js';
 import messageRoutes from './routes/message.route.js';
 
-config()
+// config()
 
 const app = express();
 
