@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-// import { config } from 'dotenv';
-import 'dotenv/config';
+import { server, app, io } from './utils/socket.js';
+import { config } from 'dotenv';
 import sequelize from './configs/database.js';
 import cookieParser from 'cookie-parser';
 import User from './models/user.model.js';
@@ -9,9 +9,7 @@ import Message from './models/message.model.js';
 import authRoutes from './routes/user.route.js';
 import messageRoutes from './routes/message.route.js';
 
-// config()
-
-const app = express();
+config()
 
 app.use(cors({
   origin: 'http://localhost:5173',
@@ -37,11 +35,10 @@ User.hasMany(Message, { foreignKey: 'receiverId', as: 'receivedMessages' });
 Message.belongsTo(User, { foreignKey: 'receiverId', as: 'receiver' });
 
 
-
 sequelize.sync({ alter: true })
   .then(() => {
     console.log('database connected');
-    app.listen(process.env.PORT, () => {
+    server.listen(process.env.PORT, () => {
       console.log(`Server connected on port ${process.env.PORT}`);
     })
   })
