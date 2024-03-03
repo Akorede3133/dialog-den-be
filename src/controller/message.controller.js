@@ -1,13 +1,21 @@
 import { Op } from "sequelize";
 import Message from "../models/message.model.js"
 import uploadImage from "../utils/cloudinary.js";
+import { getReceiverSocketId, io } from "../utils/socket.js";
 
 export const sendMessage = async (req, res, next) => {
   try {
     const { content, type } = req.body;
     const { receiverId } = req.params;
     const message = await Message.create({ content, type, senderId: req.userId, receiverId });
+    
+    const receiverSocketId = getReceiverSocketId(receiverId);
+   
     res.status(201).send(message);
+
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit('getMessage', message);
+    }
   } catch (error) {
     next(error)
   }

@@ -35,7 +35,7 @@ User.hasMany(Message, { foreignKey: 'receiverId', as: 'receivedMessages' });
 Message.belongsTo(User, { foreignKey: 'receiverId', as: 'receiver' });
 
 
-sequelize.sync({ alter: true })
+sequelize.sync()
   .then(() => {
     console.log('database connected');
     server.listen(process.env.PORT, () => {

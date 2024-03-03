@@ -10,19 +10,18 @@ export const io = new Server(server, {
     methods: ['GET', 'POST']
   }
 });
-
 const onlineUsersMap = {};
 
+export const getReceiverSocketId = (receiverId) => onlineUsersMap[receiverId]
+
 io.on('connection', (socket) => {
-  console.log('A user connected', socket.id);
   const userId = socket.handshake.query.userId;
   if (userId) {
     onlineUsersMap[userId] = socket.id;
   }
-  console.log(onlineUsersMap);
-  io.emit('getOnlineUsers', Object.keys(onlineUsersMap))
+  const onlineUsersId = Object.keys(onlineUsersMap).map((id) => +id)
+  io.emit('getOnlineUsers', onlineUsersId)
   socket.on('disconnect', () => {
-    console.log('User disconnected', socket.id);
     delete onlineUsersMap[userId];
     io.emit('getOnlineUsers', Object.keys(onlineUsersMap))
   })
