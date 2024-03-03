@@ -8,7 +8,7 @@ export const sendMessage = async (req, res, next) => {
     const { content, type } = req.body;
     const { receiverId } = req.params;
     const message = await Message.create({ content, type, senderId: req.userId, receiverId });
-    
+
     const receiverSocketId = getReceiverSocketId(receiverId);
    
     res.status(201).send(message);
@@ -44,9 +44,17 @@ export const sendImage = async (req, res, next) => {
     const b64 = Buffer.from(req.file.buffer).toString('base64');
     const dataURI = `data:${req.file.mimetype};base64,${b64}`;
     const cldRes = await uploadImage(dataURI);
+    console.log(cldRes);
     const { secure_url } = cldRes;
     const message = await Message.create({ content: secure_url, type: 'image', senderId: req.userId, receiverId })
     res.status(201).send(message);
+    
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit('getMessage', message);
+    }
+
   } catch (error) {
     next(error)
   }

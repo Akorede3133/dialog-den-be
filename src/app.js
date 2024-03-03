@@ -1,15 +1,13 @@
 import express from 'express';
 import cors from 'cors';
-import { server, app, io } from './utils/socket.js';
-import { config } from 'dotenv';
+import { server, app } from './utils/socket.js';
+import 'dotenv/config';
 import sequelize from './configs/database.js';
 import cookieParser from 'cookie-parser';
 import User from './models/user.model.js';
 import Message from './models/message.model.js';
 import authRoutes from './routes/user.route.js';
 import messageRoutes from './routes/message.route.js';
-
-config()
 
 app.use(cors({
   origin: 'http://localhost:5173',
