@@ -31,8 +31,19 @@ export const getMessages = async (req, res, next) => {
           { receiverId, senderId: req.userId },
           { senderId: receiverId, receiverId: req.userId }
         ]
-      } 
+      },
+      order: [
+        ['id', 'asc']
+      ]
     })
+    const messageIds = messages.filter((message) => message.status !== 'read' && message.senderId == receiverId).map((msg) => msg.id)
+    if (messageIds.length > 0) {
+      await Message.update({ status: 'read' }, {
+        where: {
+          id: messageIds
+        }
+      })
+    }
     res.status(200).send(messages);
   } catch (error) {
     next(error)
