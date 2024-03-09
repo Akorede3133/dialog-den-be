@@ -6,7 +6,7 @@ cloudinary.config({
   api_secret: process.env.CLOUD_API_SECRET 
 });
 
-const uploadImage = async (file) => {
+const upload = async (file) => {
   try {
     const res = await cloudinary.uploader.upload(file, {
       resource_type: 'auto',
@@ -14,8 +14,9 @@ const uploadImage = async (file) => {
     });
     return res;
   } catch (error) {
+    console.log(error.message);
     throw new Error(error.message)
   }
 }
 
-export default uploadImage;
+export default upload;

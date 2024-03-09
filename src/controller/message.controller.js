@@ -1,6 +1,6 @@
 import { Op } from "sequelize";
 import Message from "../models/message.model.js"
-import uploadImage from "../utils/cloudinary.js";
+import upload from "../utils/cloudinary.js";
 import { getReceiverSocketId, io } from "../utils/socket.js";
 
 export const sendMessage = async (req, res, next) => {
@@ -43,10 +43,33 @@ export const sendImage = async (req, res, next) => {
     const { receiverId } = req.params;
     const b64 = Buffer.from(req.file.buffer).toString('base64');
     const dataURI = `data:${req.file.mimetype};base64,${b64}`;
-    const cldRes = await uploadImage(dataURI);
+    const cldRes = await upload(dataURI);
     console.log(cldRes);
     const { secure_url } = cldRes;
     const message = await Message.create({ content: secure_url, type: 'image', senderId: req.userId, receiverId })
+    res.status(201).send(message);
+    
+    const receiverSocketId = getReceiverSocketId(receiverId);
+    
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit('getMessage', message);
+    }
+
+  } catch (error) {
+    next(error)
+  }
+}
+
+export const sendVoiceMessage = async (req, res, next) => {
+  try {
+    const { receiverId } = req.params;
+    const b64 = Buffer.from(req.file.buffer).toString('base64');
+    const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+    const cldRes = await upload(dataURI);
+    console.log(cldRes);
+    const { secure_url } = cldRes;
+    // console.log(secure_url);
+    const message = await Message.create({ content: secure_url, type: 'voice', senderId: req.userId, receiverId })
     res.status(201).send(message);
     
     const receiverSocketId = getReceiverSocketId(receiverId);
