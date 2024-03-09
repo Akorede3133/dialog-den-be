@@ -10,7 +10,7 @@ export const io = new Server(server, {
     methods: ['GET', 'POST']
   }
 });
-const onlineUsersMap = {};
+export const onlineUsersMap = {};
 
 export const getReceiverSocketId = (receiverId) => onlineUsersMap[receiverId]
 

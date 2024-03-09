@@ -1,14 +1,15 @@
 import { Op } from "sequelize";
 import Message from "../models/message.model.js"
 import upload from "../utils/cloudinary.js";
-import { getReceiverSocketId, io } from "../utils/socket.js";
+import { getReceiverSocketId, io, onlineUsersMap } from "../utils/socket.js";
 
 export const sendMessage = async (req, res, next) => {
   try {
     const { content, type } = req.body;
     const { receiverId } = req.params;
-    const message = await Message.create({ content, type, senderId: req.userId, receiverId });
-
+    const isUserOnline = Boolean(onlineUsersMap[receiverId.toString()])
+    const status = isUserOnline ? 'delivered' : 'sent';
+    const message = await Message.create({ content, type, senderId: req.userId, receiverId, status});
     const receiverSocketId = getReceiverSocketId(receiverId);
    
     res.status(201).send(message);
