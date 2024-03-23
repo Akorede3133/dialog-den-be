@@ -3,6 +3,7 @@ import { Server } from "socket.io";
 import { createServer } from 'node:http';
 import Message from '../models/message.model.js';
 import { Op } from 'sequelize';
+import User from '../models/user.model.js';
 
 export const app = express();
 export const server = createServer(app);
@@ -23,6 +24,18 @@ io.on('connection', async (socket) => {
   }
   const onlineUsersId = Object.keys(onlineUsersMap).map((id) => +id)
   io.emit('getOnlineUsers', onlineUsersId)
+  socket.on('getUserSocketId', ({ id }) => {
+    socket.emit('getUserSocketId', getReceiverSocketId(id))
+  })
+  socket.on('SendOutgoingVoiceCall', async ({ callReceiverId}) => {
+    console.log(callReceiverId);
+    const user = await User.findByPk(userId);
+    const {id, username, email } = user.dataValues;
+    const caller = { id, username, email }
+    console.log(caller);
+    // getReceiverSocketId(user.id)
+    socket.to(getReceiverSocketId(callReceiverId)).emit('SendOutgoingVoiceCallToReceiver', caller);
+  })
   socket.on('disconnect', () => {
     delete onlineUsersMap[userId];
     io.emit('getOnlineUsers', Object.keys(onlineUsersMap))
