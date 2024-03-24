@@ -16,6 +16,7 @@ export const io = new Server(server, {
 export const onlineUsersMap = {};
 
 export const getReceiverSocketId = (receiverId) => onlineUsersMap[receiverId]
+const offers = [];
 
 io.on('connection', async (socket) => {
   const userId = socket.handshake.query.userId;
@@ -28,14 +29,37 @@ io.on('connection', async (socket) => {
     socket.emit('getUserSocketId', getReceiverSocketId(id))
   })
   socket.on('SendOutgoingVoiceCall', async ({ callReceiverId}) => {
-    console.log(callReceiverId);
     const user = await User.findByPk(userId);
     const {id, username, email } = user.dataValues;
     const caller = { id, username, email }
-    console.log(caller);
-    // getReceiverSocketId(user.id)
     socket.to(getReceiverSocketId(callReceiverId)).emit('SendOutgoingVoiceCallToReceiver', caller);
   })
+  socket.on('CancelOutgoingVoiceCall', ({ callReceiverId}) => {
+    socket.to(getReceiverSocketId(callReceiverId)).emit('CancelOutgoingVoiceCallForReceiver');
+  })
+  socket.on('SendOffer', ({ offer,receiverId }) => {
+    console.log(offer);
+    if (offer) {
+      const offerObj = {
+        offererId: userId,
+        offer,
+        offererIceCandiates: [],
+        answererId: receiverId,
+        answer: null,
+        answererIceCandiates: [],
+      }
+      offers.push(offerObj);
+      socket.to(getReceiverSocketId(receiverId)).emit('SendOffer', offerObj);
+    }
+ 
+  })
+  socket.on('sendAnswer',  ({ answer }) => {
+    // console.log(answer);
+    const offerToUpdate = offers[0];
+    offerToUpdate.answer = answer;
+    console.log(offerToUpdate);
+  })
+  socket.on('sendIceCandidate', (candiadate))
   socket.on('disconnect', () => {
     delete onlineUsersMap[userId];
     io.emit('getOnlineUsers', Object.keys(onlineUsersMap))
