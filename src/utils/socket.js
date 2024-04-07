@@ -37,6 +37,9 @@ io.on('connection', async (socket) => {
   socket.on('cancelOutgoingVoiceCall', ({ callReceiverId}) => {
     socket.to(getReceiverSocketId(callReceiverId)).emit('cancelOutgoingVoiceCallForReceiver');
   })
+  socket.on('cancelOutgoingVideoCall', ({ callReceiverId}) => {
+    socket.to(getReceiverSocketId(callReceiverId)).emit('cancelOutgoingVideoCallForReceiver');
+  })
   socket.on('sendOnGoingCall', ({ callerId }) => {
     socket.to(getReceiverSocketId(callerId)).emit('sendOnGoingCall')
   })
