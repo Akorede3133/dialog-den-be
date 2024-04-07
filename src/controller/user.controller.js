@@ -15,7 +15,7 @@ export const register = async (req, res, next) => {
     }
     const newUser = await User.create({ username, email, password: await bcrypt.hash(password, 12) })
     const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET, {
-      expiresIn: '1d'
+      // expiresIn: '1d'
     });
     res.cookie('auth_token', token, {
       httpOnly: true,
@@ -40,7 +40,7 @@ export const login = async (req, res, next) => {
       handleError('Invalid credentials', 401);
     }
      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-      expiresIn: '1d'
+      // expiresIn: '1d'
     });
     res.cookie('auth_token', token, {
       httpOnly: true,
