@@ -17,80 +17,87 @@ export const onlineUsersMap = {};
 export const getReceiverSocketId = (receiverId) => onlineUsersMap[receiverId]
 const offers = [];
 
-io.on('connection', async (socket) => {
-  const userId = socket.handshake.query.userId;
-  if (userId) {
-    onlineUsersMap[userId] = socket.id;   
-  }
-  const onlineUsersId = Object.keys(onlineUsersMap).map((id) => +id);
-  socket.emit('getOnlineUsers', onlineUsersId)
+io.on('connection', (socket) => {
+  socket.on('user', async (user) => {
+    const userId = user.id
+    onlineUsersMap[userId] = socket.id; 
+    const onlineUsersId = Object.keys(onlineUsersMap).map((id) => +id);
 
-  socket.on('getUserSocketId', ({ id }) => {
-    socket.emit('getUserSocketId', getReceiverSocketId(id))
-  })
-  socket.on('sendOutgoingCall', async ({ callReceiverId, type}) => {
-    const user = await User.findByPk(userId);
-    const {id, username, email } = user.dataValues;
-    const caller = { id, username, email, type }
-    socket.to(getReceiverSocketId(callReceiverId)).emit('sendOutgoingCallToReceiver', caller );
-  });
-  socket.on('cancelOutgoingVoiceCall', ({ callReceiverId}) => {
-    socket.to(getReceiverSocketId(callReceiverId)).emit('cancelOutgoingVoiceCallForReceiver');
-  })
-  socket.on('cancelOutgoingVideoCall', ({ callReceiverId}) => {
-    socket.to(getReceiverSocketId(callReceiverId)).emit('cancelOutgoingVideoCallForReceiver');
-  })
-  socket.on('sendOnGoingCall', ({ callerId }) => {
-    socket.to(getReceiverSocketId(callerId)).emit('sendOnGoingCall')
-  })
-  socket.on('sendOffer', ({ offer,receiverId }) => {
-    if (offer) {
-      const offerObj = {
-        offererId: +userId,
-        offer,
-        offererIceCandiates: [],
-        answererId: receiverId,
-        answer: null,
-        answererIceCandiates: [],
-      }
-      offers.push(offerObj);
-      socket.to(getReceiverSocketId(receiverId)).emit('sendOffer', offerObj);
-    }
-  })
-  socket.on('sendAnswer',  ({answer, offererId} ) => {
-    const offerToUpdate = offers.find((offer) => offer.offererId == offererId)
-    if (offerToUpdate) {
-    offerToUpdate.answer = answer;
-      socket.to(getReceiverSocketId(offererId)).emit('sendAnswer', answer)
-    }
-  })
- 
-  socket.on('sendIceCandidate',({ candidate, iceCandidateOffererId }) => {
-    const offerToUpdate = offers.find((offer) => offer.offererId == iceCandidateOffererId || offer.answererId == iceCandidateOffererId);
-    if (offerToUpdate) {
-      if (iceCandidateOffererId == offerToUpdate.offererId) {
-        offerToUpdate.offererIceCandiates.push(candidate);
-        socket.to(getReceiverSocketId(offerToUpdate.answererId)).emit('updatedOfferWithIceCandiadates', {candidate});
-      } else {
-        offerToUpdate.answererIceCandiates.push(candidate);
-        socket.to(getReceiverSocketId(offerToUpdate.offererId)).emit('updatedOfferWithIceCandiadates', {candidate});
-      }
-    }
-  })
-  socket.on('disconnect', () => {
-    delete onlineUsersMap[userId];
-    io.emit('getOnlineUsers', Object.keys(onlineUsersMap))
-  })
-  const messages = await Message.findAll({
-    where: {
-      receiverId: userId | null,
-       status: 'sent'
-    },
-  });
-  const messageIds = messages.map((message) => message.id);
+    socket.emit('getOnlineUsers', onlineUsersId)
+    
+    socket.on('getUserSocketId', ({ id }) => {
+      socket.emit('getUserSocketId', getReceiverSocketId(id))
+    })
 
-  if (messageIds.length > 0) {
-    await Message.update({status: 'delivered'}, { where: { id: messageIds } })
-  } 
+    socket.on('sendOutgoingCall', async ({ callReceiverId, type}) => {
+      const user = await User.findByPk(userId);
+      const {id, username, email } = user.dataValues;
+      const caller = { id, username, email, type }
+      socket.to(getReceiverSocketId(callReceiverId)).emit('sendOutgoingCallToReceiver', caller );
+    });
+
+    socket.on('cancelOutgoingVoiceCall', ({ callReceiverId}) => {
+      socket.to(getReceiverSocketId(callReceiverId)).emit('cancelOutgoingVoiceCallForReceiver');
+    })
+
+    socket.on('cancelOutgoingVideoCall', ({ callReceiverId}) => {
+      socket.to(getReceiverSocketId(callReceiverId)).emit('cancelOutgoingVideoCallForReceiver');
+    })
+
+    socket.on('sendOnGoingCall', ({ callerId }) => {
+      socket.to(getReceiverSocketId(callerId)).emit('sendOnGoingCall')
+    })
+
+    socket.on('sendOffer', ({ offer,receiverId }) => {
+      if (offer) {
+        const offerObj = {
+          offererId: +userId,
+          offer,
+          offererIceCandiates: [],
+          answererId: receiverId,
+          answer: null,
+          answererIceCandiates: [],
+        }
+        offers.push(offerObj);
+        socket.to(getReceiverSocketId(receiverId)).emit('sendOffer', offerObj);
+      }
+    })
+
+    socket.on('sendAnswer',  ({answer, offererId} ) => {
+      const offerToUpdate = offers.find((offer) => offer.offererId == offererId)
+      if (offerToUpdate) {
+      offerToUpdate.answer = answer;
+        socket.to(getReceiverSocketId(offererId)).emit('sendAnswer', answer)
+      }
+    })
+  
+    socket.on('sendIceCandidate',({ candidate, iceCandidateOffererId }) => {
+      const offerToUpdate = offers.find((offer) => offer.offererId == iceCandidateOffererId || offer.answererId == iceCandidateOffererId);
+      if (offerToUpdate) {
+        if (iceCandidateOffererId == offerToUpdate.offererId) {
+          offerToUpdate.offererIceCandiates.push(candidate);
+          socket.to(getReceiverSocketId(offerToUpdate.answererId)).emit('updatedOfferWithIceCandiadates', {candidate});
+        } else {
+          offerToUpdate.answererIceCandiates.push(candidate);
+          socket.to(getReceiverSocketId(offerToUpdate.offererId)).emit('updatedOfferWithIceCandiadates', {candidate});
+        }
+      }
+    })
+    socket.on('disconnect', () => {
+      delete onlineUsersMap[userId];
+      socket.emit('getOnlineUsers', Object.keys(onlineUsersMap))
+    })
+
+    const messages = await Message.findAll({
+      where: {
+        receiverId: userId | null,
+        status: 'sent'
+      },
+    });
+    const messageIds = messages.map((message) => message.id);
+    if (messageIds.length > 0) {
+      await Message.update({status: 'delivered'}, { where: { id: messageIds } })
+    } 
+  })
 })
 
