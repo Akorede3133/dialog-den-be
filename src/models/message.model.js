@@ -3,7 +3,7 @@ import sequelize from "../configs/database.js";
 
 const Message = sequelize.define('Message', {
   content: {
-    type: DataTypes.STRING,
+    type: DataTypes.TEXT,
     allowNull: false,
   },
   type: DataTypes.STRING,
