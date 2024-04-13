@@ -23,7 +23,7 @@ io.on('connection', (socket) => {
     onlineUsersMap[userId] = socket.id; 
     const onlineUsersId = Object.keys(onlineUsersMap).map((id) => +id);
 
-    socket.emit('getOnlineUsers', onlineUsersId)
+    io.emit('getOnlineUsers', onlineUsersId)
     
     socket.on('getUserSocketId', ({ id }) => {
       socket.emit('getUserSocketId', getReceiverSocketId(id))
@@ -85,7 +85,8 @@ io.on('connection', (socket) => {
     })
     socket.on('disconnect', () => {
       delete onlineUsersMap[userId];
-      socket.emit('getOnlineUsers', Object.keys(onlineUsersMap))
+      const onlineUsersId = Object.keys(onlineUsersMap).map((id) => +id);
+      io.emit('getOnlineUsers', onlineUsersId)
     })
 
     const messages = await Message.findAll({

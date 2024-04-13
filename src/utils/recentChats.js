@@ -86,7 +86,6 @@ const getRecentChats = async (userId) => {
       chats.set(calcId, chat)
     }
   })
-  console.log(chats);
   return Array.from(chats.values()) 
 }
 
