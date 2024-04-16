@@ -55,10 +55,10 @@ const getRecentChats = async (userId) => {
       receiverId,
     } = message.dataValues
     const calcId = isSender ? receiverId : senderId;
-    const {id: msgSenderId, username: senderUsername, email: senderEmail} = message.dataValues.sender.dataValues ;
-    const sender = { msgSenderId, senderUsername, senderEmail };
-    const {id: msgReceiverId, username: receiverUsername, email: receiverEmail} = message.dataValues.receiver.dataValues ;
-    const receiver = { msgReceiverId, receiverUsername, receiverEmail }
+    const {id: msgSenderId, username: senderUsername, email: senderEmail, photo: senderPhoto} = message.dataValues.sender.dataValues ;
+    const sender = { msgSenderId, senderUsername, senderEmail,senderPhoto };
+    const {id: msgReceiverId, username: receiverUsername, email: receiverEmail, photo: receiverPhoto} = message.dataValues.receiver.dataValues ;
+    const receiver = { msgReceiverId, receiverUsername, receiverEmail, receiverPhoto }
 
     let chat = {
       messageId :id,

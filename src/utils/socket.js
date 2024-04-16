@@ -31,8 +31,8 @@ io.on('connection', (socket) => {
 
     socket.on('sendOutgoingCall', async ({ callReceiverId, type}) => {
       const user = await User.findByPk(userId);
-      const {id, username, email } = user.dataValues;
-      const caller = { id, username, email, type }
+      const {id, username, email, photo } = user.dataValues;
+      const caller = { id, username, email, photo, type }
       socket.to(getReceiverSocketId(callReceiverId)).emit('sendOutgoingCallToReceiver', caller );
     });
 
