@@ -10,7 +10,7 @@ import authRoutes from './routes/user.route.js';
 import messageRoutes from './routes/message.route.js';
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: ['http://localhost:5173', 'https://dialog-den.onrender.com']
   credentials: true
 }))
 app.use(express.json())
