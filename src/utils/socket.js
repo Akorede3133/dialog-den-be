@@ -21,6 +21,7 @@ io.on('connection', (socket) => {
   socket.on('user', async (user) => {
     const userId = user.id
     onlineUsersMap[userId] = socket.id; 
+    console.log(onlineUsersMap);
     const onlineUsersId = Object.keys(onlineUsersMap).map((id) => +id);
 
     io.emit('getOnlineUsers', onlineUsersId)
