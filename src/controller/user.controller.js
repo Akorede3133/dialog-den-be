@@ -24,7 +24,7 @@ export const register = async (req, res, next) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 86400000,
-      sameSite: 'None',
+      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
     });
     res.status(201).send(newUser);
   } catch (error) {
@@ -50,7 +50,7 @@ export const login = async (req, res, next) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 86400000,
-      sameSite: 'None',
+      sameSite: process.env.NODE_ENV === 'production' && 'None',
     });
     res.status(200).send({ message: 'LoggedIn sucessfully!', user});
   } catch (error) {
