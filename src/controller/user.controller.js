@@ -23,7 +23,8 @@ export const register = async (req, res, next) => {
     res.cookie('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 86400000
+      maxAge: 86400000,
+      sameSite: 'None',
     });
     res.status(201).send(newUser);
   } catch (error) {
@@ -48,7 +49,8 @@ export const login = async (req, res, next) => {
     res.cookie('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 86400000
+      maxAge: 86400000,
+      sameSite: 'None',
     });
     res.status(200).send({ message: 'LoggedIn sucessfully!', user});
   } catch (error) {
