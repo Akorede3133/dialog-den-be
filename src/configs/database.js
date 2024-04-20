@@ -6,12 +6,12 @@ process.env.DB_USERNAME, process.env.DB_PASSWORD, {
   dialect: 'postgres',
   port: 5432,
   logging: console.log,
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false
-    }
-  }
+  // dialectOptions: {
+  //   ssl: {
+  //     require: process.env.NODE_ENV === 'production',
+  //     rejectUnauthorized: false
+  //   }
+  // }
 });
 
 export default sequelize;

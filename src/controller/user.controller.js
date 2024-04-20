@@ -5,8 +5,6 @@ import { handleError } from "../utils/error.js";
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import categorizeUsers from "../utils/categorizeUsers.js";
-import Message from "../models/message.model.js";
-import getRecentChats from "../utils/recentChats.js";
 import upload from "../utils/cloudinary.js";
 
 export const register = async (req, res, next) => {
@@ -112,15 +110,6 @@ export const getUsers = async (req, res, next) => {
     });
     const categorizedUsers = categorizeUsers(users)
     res.status(200).send(categorizedUsers);
-  } catch (error) {
-    next(error)
-  }
-}
-
-export const recentChats = async (req, res, next) => {
-  try {
-    const chats = await getRecentChats(req.userId);
-    res.status(200).send(Array.from(chats.values()));
   } catch (error) {
     next(error)
   }

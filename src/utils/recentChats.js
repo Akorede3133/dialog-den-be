@@ -1,92 +1,57 @@
+import { Op } from "sequelize";
 import Message from "../models/message.model.js";
 import User from "../models/user.model.js";
 
-const getRecentChats = async (userId) => {
-  const user = await User.findByPk(userId, {
+const recentConversations = async (userId) => {
+ const messages = await Message.findAll({
+    where: {
+      [Op.or]: [
+        { senderId: userId },
+        { receiverId: userId }
+      ]
+    },
     include: [
       {
-        model: Message, 
-        as: 'sentMessages',
-        include: [
-          {
-            model: User,
-            as: 'receiver'
-          },
-          {
-            model: User,
-            as: 'sender'
-          }
-        ],
-        order: ['createdAt', 'DESC']
+        model: User,
+        as: 'sender',
+        attributes: ['id', 'username', 'email', 'photo']
       },
       {
-        model: Message, 
-        as: 'receivedMessages',
-        include: [
-          {
-            model: User,
-            as: 'receiver'
-          },
-          {
-            model: User,
-            as: 'sender'
-          }
-        ],
-        order: ['createdAt', 'DESC']
+        model: User,
+        as: 'receiver',
+        attributes: ['id', 'username', 'email', 'photo']
       }
     ],
-  })
-
-  const messages = [...user.sentMessages, ...user.receivedMessages]
-
-  messages.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-
+    order: [['createdAt', 'DESC']],
+  });
+  const conversations = messages.map((msg) => msg.dataValues);
   const chats = new Map();
-  messages.map((message) => {
-    const isSender = message.senderId === userId;
+  conversations.forEach((message) => {
+    const isSender = message.senderId === 3;
+    const otherUser = isSender ? message.receiverId : message.senderId;
 
-    const {
+    const { id, content, type, status, createdAt } = message;
+    const { id: senderId, username: senderUsername, email: senderEmail, photo: senderPhoto  } = message.sender;
+    const { id: receiverId, username: receiverUsername, email: receiverEmail,  photo: receiverPhoto  } = message.receiver;
+    const receiver = { receiverId, receiverUsername, receiverEmail, receiverPhoto }
+    const sender = { senderId, senderUsername, senderEmail, senderPhoto }
+
+    const chat = {
       id,
       content,
       type,
+      status,
       createdAt,
-      updatedAt,
-      senderId,
-      receiverId,
-    } = message.dataValues
-    const calcId = isSender ? receiverId : senderId;
-    const {id: msgSenderId, username: senderUsername, email: senderEmail, photo: senderPhoto} = message.dataValues.sender.dataValues ;
-    const sender = { msgSenderId, senderUsername, senderEmail,senderPhoto };
-    const {id: msgReceiverId, username: receiverUsername, email: receiverEmail, photo: receiverPhoto} = message.dataValues.receiver.dataValues ;
-    const receiver = { msgReceiverId, receiverUsername, receiverEmail, receiverPhoto }
+      user: isSender ? receiver : sender
+    }
 
-    let chat = {
-      messageId :id,
-      content,
-      type,
-      createdAt,
-      updatedAt,
-      senderId,
-      receiverId
+    if (!chats.get(otherUser)) {
+      chats.set(otherUser, chat)
     }
 
 
-    if (isSender) {
-      chat = {
-        ...chat,
-        ...receiver
-      }
-    } else {
-      chat = {
-        ...chat,
-        ...sender
-      }
-    }
-    if (!chats.get(calcId)) {
-      chats.set(calcId, chat)
-    }
   })
-  return Array.from(chats.values()) 
+  return Array.from(chats.values());
 }
 
-export default getRecentChats;
+export default recentConversations;

@@ -2,7 +2,7 @@ import { Op } from "sequelize";
 import Message from "../models/message.model.js"
 import upload from "../utils/cloudinary.js";
 import { getReceiverSocketId, io, onlineUsersMap } from "../utils/socket.js";
-
+import recentConversations from '../utils/recentChats.js'
 export const sendMessage = async (req, res, next) => {
   try {
     const { content, type } = req.body;
@@ -50,6 +50,15 @@ export const getMessages = async (req, res, next) => {
   }
 };
 
+export const getRecentChats = async (req, res, next) => {
+  try {
+    const chats = await recentConversations(req.userId);
+    res.status(200).send(chats);
+  } catch (error) {
+    next(error)
+  }
+}
+
 export const sendImage = async (req, res, next) => {
   try {
     const { receiverId } = req.params;
@@ -80,7 +89,6 @@ export const sendVoiceMessage = async (req, res, next) => {
     const cldRes = await upload(dataURI);
     console.log(cldRes);
     const { secure_url } = cldRes;
-    // console.log(secure_url);
     const message = await Message.create({ content: secure_url, type: 'voice', senderId: req.userId, receiverId })
     res.status(201).send(message);
     
