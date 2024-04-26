@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
-import 'dotenv/config';
+import { config } from 'dotenv';
+config({path: '.env.development'})
+
 import { server, app } from './utils/socket.js';
 import sequelize from './configs/database.js';
 import cookieParser from 'cookie-parser';
@@ -8,6 +10,7 @@ import User from './models/user.model.js';
 import Message from './models/message.model.js';
 import authRoutes from './routes/user.route.js';
 import messageRoutes from './routes/message.route.js';
+
 
 app.use(cors({
   origin: ['http://localhost:5173', 'https://dialog-den.onrender.com'],

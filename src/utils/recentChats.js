@@ -27,7 +27,7 @@ const recentConversations = async (userId) => {
   const conversations = messages.map((msg) => msg.dataValues);
   const chats = new Map();
   conversations.forEach((message) => {
-    const isSender = message.senderId === 3;
+    const isSender = message.senderId === userId;
     const otherUser = isSender ? message.receiverId : message.senderId;
 
     const { id, content, type, status, createdAt } = message;
