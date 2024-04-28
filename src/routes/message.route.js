@@ -6,6 +6,7 @@ import upload from '../utils/upload.js';
 const route = express.Router();
 
 route.post('/send/:receiverId', isAuth, sendMessage);
+route.post('/sendImage/:receiverId', isAuth, upload.single('image'), sendImage);
 route.post('/sendFile/:receiverId', isAuth, upload.single('image'), sendImage);
 route.get('/messages/:receiverId', isAuth, getMessages);
 route.post('/sendVoice/:receiverId', isAuth, upload.single('voice'), sendVoiceMessage);

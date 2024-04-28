@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer'
 import { Op } from "sequelize";
 import Message from "../models/message.model.js"
 import upload from "../utils/cloudinary.js";
@@ -87,7 +88,6 @@ export const sendVoiceMessage = async (req, res, next) => {
     const b64 = Buffer.from(req.file.buffer).toString('base64');
     const dataURI = `data:${req.file.mimetype};base64,${b64}`;
     const cldRes = await upload(dataURI);
-    console.log(cldRes);
     const { secure_url } = cldRes;
     const message = await Message.create({ content: secure_url, type: 'voice', senderId: req.userId, receiverId })
     res.status(201).send(message);
