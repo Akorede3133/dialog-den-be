@@ -102,3 +102,20 @@ export const sendVoiceMessage = async (req, res, next) => {
     next(error)
   }
 }
+
+export const deleteConversation = async (req, res, next) => {
+  try {
+    const {receiverId } = req.params;
+    const { userId } = req;
+
+    await Message.destroy({ where: {
+      [Op.or]: [
+        { senderId: userId, receiverId },
+        { senderId: receiverId, receiverId: userId }
+      ]
+    }});
+    res.status(200).send({message: 'Coversation deleted sucessfully'});
+  } catch (error) {
+    next(error)
+  }
+}

@@ -1,5 +1,5 @@
 import express from 'express';
-import { getMessages, getRecentChats, sendImage, sendMessage, sendVoiceMessage } from '../controller/message.controller.js';
+import { deleteConversation, getMessages, getRecentChats, sendImage, sendMessage, sendVoiceMessage } from '../controller/message.controller.js';
 import { isAuth } from '../middleware/isAuth.js';
 import upload from '../utils/upload.js';
 
@@ -11,5 +11,6 @@ route.post('/sendFile/:receiverId', isAuth, upload.single('image'), sendImage);
 route.get('/messages/:receiverId', isAuth, getMessages);
 route.post('/sendVoice/:receiverId', isAuth, upload.single('voice'), sendVoiceMessage);
 route.get('/recentChats', isAuth, getRecentChats);
+route.delete('/deleteConversation/:receiverId', isAuth, deleteConversation);
 
 export default route;
