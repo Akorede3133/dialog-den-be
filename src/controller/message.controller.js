@@ -4,6 +4,7 @@ import Message from "../models/message.model.js"
 import upload from "../utils/cloudinary.js";
 import { getReceiverSocketId, io, onlineUsersMap } from "../utils/socket.js";
 import recentConversations from '../utils/recentChats.js'
+import { handleError } from '../utils/error.js';
 export const sendMessage = async (req, res, next) => {
   try {
     const { content, type } = req.body;
@@ -117,5 +118,20 @@ export const deleteConversation = async (req, res, next) => {
     res.status(200).send({message: 'Coversation deleted sucessfully'});
   } catch (error) {
     next(error)
+  }
+}
+
+export const deleteMessage = async(req, res, next) => {
+  try {
+    const { messageId } = req.params;
+    const message = await Message.findByPk(messageId);
+    if (!message) {
+      handleError('Message not found', 404);
+    }
+    console.log(message);
+    await message.destroy();
+    res.status(201).send({ message: 'Message deleted successfully' });
+  } catch (error) {
+    next(error);
   }
 }
