@@ -83,6 +83,10 @@ io.on('connection', (socket) => {
         }
       }
     })
+    socket.on('recentChat', ({newChat, receiverId}) => {
+      io.to(getReceiverSocketId(receiverId)).emit('recentChat', newChat)
+    });
+
     socket.on('disconnect', () => {
       delete onlineUsersMap[userId];
       const onlineUsersId = Object.keys(onlineUsersMap).map((id) => +id);
