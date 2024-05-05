@@ -84,8 +84,11 @@ io.on('connection', (socket) => {
       }
     })
     socket.on('recentChat', ({newChat, receiverId}) => {
-      io.to(getReceiverSocketId(receiverId)).emit('recentChat', newChat)
+      socket.to(getReceiverSocketId(receiverId)).emit('recentChat', newChat)
     });
+    socket.on('updateReadStatus', ({ receiverId, messages }) => {
+      socket.to(getReceiverSocketId(receiverId)).emit('updateReadStatus', { messages })
+    })
 
     socket.on('disconnect', () => {
       delete onlineUsersMap[userId];
