@@ -83,13 +83,7 @@ io.on('connection', (socket) => {
         }
       }
     })
-    socket.on('recentChat', ({newChat, receiverId}) => {
-      socket.to(getReceiverSocketId(receiverId)).emit('recentChat', newChat)
-    });
-    socket.on('updateReadStatus', ({ receiverId, messages }) => {
-      socket.to(getReceiverSocketId(receiverId)).emit('updateReadStatus', { messages })
-    })
-
+   
     socket.on('disconnect', () => {
       delete onlineUsersMap[userId];
       const onlineUsersId = Object.keys(onlineUsersMap).map((id) => +id);
@@ -105,6 +99,7 @@ io.on('connection', (socket) => {
     const messageIds = messages.map((message) => message.id);
     if (messageIds.length > 0) {
       await Message.update({status: 'delivered'}, { where: { id: messageIds } })
+      socket.broadcast.emit('deliverMessage', messageIds);
     } 
   })
 })

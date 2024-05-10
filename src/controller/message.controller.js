@@ -15,9 +15,13 @@ export const sendMessage = async (req, res, next) => {
     const receiverSocketId = getReceiverSocketId(receiverId);
    
     res.status(201).send(message);
-
+  
     if (receiverSocketId) {
       io.to(receiverSocketId).emit('getMessage', message);
+      console.log(+receiverId);
+      const chats = await recentConversations(+receiverId);
+      io.to(receiverSocketId).emit('recentChat', chats)
+
     }
   } catch (error) {
     next(error)
@@ -45,6 +49,13 @@ export const getMessages = async (req, res, next) => {
           id: messageIds
         }
       })
+      const receiverSocketId = getReceiverSocketId(receiverId);
+      if (receiverSocketId) {
+        io.to(getReceiverSocketId(receiverId)).emit('readMessage', messageIds);
+        const chats = await recentConversations(+receiverId);
+        io.to(receiverSocketId).emit('recentChat', chats)
+      }
+     
     }
     
     res.status(200).send(messages);
