@@ -18,7 +18,6 @@ export const sendMessage = async (req, res, next) => {
   
     if (receiverSocketId) {
       io.to(receiverSocketId).emit('getMessage', message);
-      console.log(+receiverId);
       const chats = await recentConversations(+receiverId);
       io.to(receiverSocketId).emit('recentChat', chats)
 
@@ -87,6 +86,8 @@ export const sendImage = async (req, res, next) => {
     
     if (receiverSocketId) {
       io.to(receiverSocketId).emit('getMessage', message);
+      const chats = await recentConversations(+receiverId);
+      io.to(receiverSocketId).emit('recentChat', chats)
     }
 
   } catch (error) {
@@ -108,6 +109,8 @@ export const sendVoiceMessage = async (req, res, next) => {
     
     if (receiverSocketId) {
       io.to(receiverSocketId).emit('getMessage', message);
+      const chats = await recentConversations(+receiverId);
+      io.to(receiverSocketId).emit('recentChat', chats)
     }
 
   } catch (error) {
