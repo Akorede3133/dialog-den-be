@@ -83,6 +83,12 @@ io.on('connection', (socket) => {
         }
       }
     })
+    socket.on('logout', ({ userId }) => {
+      delete onlineUsersMap[userId];
+      const onlineUsersId = Object.keys(onlineUsersMap).map((id) => +id);
+      io.emit('getOnlineUsers', onlineUsersId)
+    })
+
    
     socket.on('disconnect', () => {
       delete onlineUsersMap[userId];
