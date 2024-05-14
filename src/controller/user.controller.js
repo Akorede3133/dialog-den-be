@@ -56,6 +56,16 @@ export const login = async (req, res, next) => {
   }
 }
 
+export const logout = async (req, res, next) => {
+  try {
+    res.clearCookie('auth_token');
+    res.status(201).send({ message: 'LoggedOut sucessfully!'});
+  } catch (error) {
+    next(error)
+  }
+}
+
+
 export const currentUser = async (req, res, next) => {
   try {
     const { userId } = req;
