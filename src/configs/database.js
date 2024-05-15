@@ -1,0 +1,20 @@
+import { Sequelize } from 'sequelize';
+import { config } from 'dotenv';
+
+config({path: '.env.development'})
+
+const sequelize = new Sequelize(process.env.DB_NAME,
+process.env.DB_USERNAME, process.env.DB_PASSWORD, {
+  host: process.env.DB_HOST,
+  dialect: 'postgres',
+  port: 5432,
+  logging: console.log,
+  dialectOptions: {
+    ssl: {
+      require: process.env.NODE_ENV === 'production',
+      rejectUnauthorized: false
+    }
+  }
+});
+
+export default sequelize;
