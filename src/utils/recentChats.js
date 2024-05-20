@@ -45,11 +45,6 @@ const recentConversations = async (userId) => {
     }
 
     if (!chats.get(otherUser)) {
-      // const unreadMessages = await Message.findAndCountAll({ where: {status: { [Op.not]: 'read'}, senderId: userId, receiverId: otherUser}
-      // })
-      // console.log(unreadMessages);
-      // console.log(chat);
-      // chat.count = unreadMessages.count
       chats.set(otherUser, chat)
     }
   })

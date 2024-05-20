@@ -142,7 +142,6 @@ export const deleteMessage = async(req, res, next) => {
     if (!message) {
       handleError('Message not found', 404);
     }
-    console.log(message);
     await message.destroy();
     res.status(201).send({ message: 'Message deleted successfully' });
   } catch (error) {
