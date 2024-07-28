@@ -42,13 +42,13 @@ export const login = async (req, res, next) => {
       handleError('Invalid credentials', 401);
     }
      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-      expiresIn: '3h'
+      expiresIn: '1d'
     });
     res.cookie('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 864000,
-      sameSite: process.env.NODE_ENV === 'production' && 'None',
+      maxAge: 86400000,
+      sameSite: process.env.NODE_ENV === 'production' ? 'None' : 'Lax',
     });
     res.status(200).send({ message: 'LoggedIn sucessfully!', user});
   } catch (error) {
@@ -58,9 +58,7 @@ export const login = async (req, res, next) => {
 
 export const logout = async (req, res, next) => {
   try {
-    console.log('======',req.userId,'======');
-    res.cookie('auth_token', '', { expires: new Date(0) })
-    // res.clearCookie('auth_token');
+    res.clearCookie('auth_token');
     res.status(201).send({ message: 'LoggedOut sucessfully!'});
   } catch (error) {
     next(error)
